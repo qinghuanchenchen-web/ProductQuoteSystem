@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品报价系统 - 专业版</title>
+    <!-- 引入谷歌字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏/标题区 -->
+        <header class="sidebar glass-effect">
+            <div class="logo-area">
+                <div class="logo-icon">✨</div>
+                <h1>产品报价系统</h1>
+                <p class="subtitle">智能 <span>·</span> 极简 <span>·</span> 高效</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>为什么使用本系统？</h3>
+                <ul>
+                    <li>🎯 实时动态计算利润</li>
+                    <li>💾 自动历史记录保存</li>
+                    <li>🚀 沉浸式流畅体验</li>
+                </ul>
+            </div>
+            
+            <div class="footer-note">
+                V1.0.0
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="calculator-card glass-effect">
+                <h2 class="card-title">新增报价单</h2>
+                
+                <form id="quote-form">
+                    <div class="input-group">
+                        <label for="product-name">产品名称</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="product-name" placeholder="请输入产品/服务名称" required>
+                            <span class="focus-border"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-group half">
+                            <label for="cost-price">成本价 (￥)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="cost-price" placeholder="0.00" min="0" step="0.01" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+
+                        <div class="input-group half">
+                            <label for="profit-margin">期望利润率 (%)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="profit-margin" placeholder="例如: 30" min="0" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                         <label for="shipping-fee">预估运费 (￥) <span class="optional">- 选填</span></label>
+                         <div class="input-wrapper">
+                             <input type="number" id="shipping-fee" placeholder="0.00" min="0" step="0.01">
+                             <span class="focus-border"></span>
+                         </div>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="calculateQuote()">生成最终报价</button>
+                </form>
+
+                <!-- 结果展示区 -->
+                <div id="result-container" class="result-container hidden">
+                    <h3>📢 报价结果</h3>
+                    <div class="result-detail">
+                        <div class="detail-item">
+                            <span class="label">产品:</span>
+                            <span id="res-name" class="value text-highlight">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">基础成本:</span>
+                            <span id="res-cost" class="value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">运费:</span>
+                            <span id="res-shipping" class="value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">预计利润:</span>
+                            <span id="res-profit" class="value text-success">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="final-price-box">
+                        <span class="fp-label">最终报价金</span>
+                        <span class="fp-currency">￥</span>
+                        <span id="res-final-price" class="fp-amount">0.00</span>
+                    </div>
+                    
+                    <button class="btn-secondary" onclick="resetForm()">重新计算</button>
+                </div>
+            </div>
+            
+            <!-- 历史记录区域 -->
+            <div class="history-card glass-effect mt-5">
+                 <h2 class="card-title">历史报价记录 <span id="history-count" class="badge">0</span></h2>
+                 <div class="history-list" id="history-list">
+                     <div class="empty-state">暂无记录，快去生成第一笔报价吧！</div>
+                 </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 背景装饰 -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
