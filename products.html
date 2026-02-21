@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品中心 | TechNova</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <!-- 全局导航栏 -->
+    <nav class="global-nav glass-effect-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">✨</span> TechNova
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="products.html" class="nav-link active">产品中心</a>
+                <a href="quote.html" class="nav-link">在线报价</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="page-container">
+        <div class="page-header">
+            <h2>探索我们的产品矩阵</h2>
+            <p>从智能终端到企业级云服务，找到最适合您业务发展的解决方案。</p>
+        </div>
+
+        <!-- 产品列表网格 -->
+        <div class="products-grid">
+            <!-- 产品卡片 1 -->
+            <div class="product-card glass-effect">
+                <div class="product-image" style="background: linear-gradient(135deg, #a78bfa, #8b5cf6);">
+                    <h3>NovaTerm Pro</h3>
+                </div>
+                <div class="product-info">
+                    <span class="product-badge">旗舰级</span>
+                    <h3 class="product-name">NovaTerm Pro 智能终端</h3>
+                    <p class="product-desc">采用顶级八核处理器，配备 4K 超高清触摸屏，为您的线下零售点提供无与伦比的交互体验与收银效率。</p>
+                    <ul class="product-specs">
+                        <li>运行内存: 16GB LPDDR5</li>
+                        <li>存储空间: 512GB NVMe</li>
+                        <li>网络: 5G / Wi-Fi 6E</li>
+                    </ul>
+                    <div class="product-price-action">
+                        <div class="base-price">基础价: ￥4,999</div>
+                        <button class="btn-primary btn-sm"
+                            onclick="jumpToQuote('NovaTerm Pro 智能终端', 4999)">去测算报价</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 产品卡片 2 -->
+            <div class="product-card glass-effect">
+                <div class="product-image" style="background: linear-gradient(135deg, #60a5fa, #3b82f6);">
+                    <h3>CloudEdge</h3>
+                </div>
+                <div class="product-info">
+                    <span class="product-badge">企业必备</span>
+                    <h3 class="product-name">CloudEdge 边缘服务器</h3>
+                    <p class="product-desc">专为中小型企业设计的微型边缘计算节点，本地数据秒级处理，极低延迟，守护您的数据安全。</p>
+                    <ul class="product-specs">
+                        <li>处理器: 12核深度定制</li>
+                        <li>算力: 20 TOPS</li>
+                        <li>接口: 万兆双网口</li>
+                    </ul>
+                    <div class="product-price-action">
+                        <div class="base-price">基础价: ￥8,500</div>
+                        <button class="btn-primary btn-sm" onclick="jumpToQuote('CloudEdge 边缘服务器', 8500)">去测算报价</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 产品卡片 3 -->
+            <div class="product-card glass-effect">
+                <div class="product-image" style="background: linear-gradient(135deg, #34d399, #10b981);">
+                    <h3>Sensor X</h3>
+                </div>
+                <div class="product-info">
+                    <span class="product-badge">爆款热销</span>
+                    <h3 class="product-name">Sensor X 物联网网关</h3>
+                    <p class="product-desc">即插即用的工业级物联网网关，支持多种协议接入。是智慧工厂和数字化车间的数据采集核心。</p>
+                    <ul class="product-specs">
+                        <li>协议: MQTT/Modbus/OPC-UA</li>
+                        <li>防护等级: IP67 工业防水防尘</li>
+                        <li>功耗: 超低功耗 <2W< /li>
+                    </ul>
+                    <div class="product-price-action">
+                        <div class="base-price">基础价: ￥1,299</div>
+                        <button class="btn-primary btn-sm" onclick="jumpToQuote('Sensor X 物联网网关', 1299)">去测算报价</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 全局页脚 -->
+    <footer class="global-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo-icon">✨</div>
+                <span>TechNova Inc.</span>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TechNova Inc. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // 跳转到报价页面并携带参数
+        function jumpToQuote(productName, costPrice) {
+            // 利用 URL 参数传递产品信息
+            const params = new URLSearchParams();
+            params.append('name', productName);
+            params.append('cost', costPrice);
+            window.location.href = `quote.html?${params.toString()}`;
+        }
+    </script>
+</body>
+
+</html>

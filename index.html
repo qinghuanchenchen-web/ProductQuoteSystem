@@ -1,126 +1,114 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>产品报价系统 - 专业版</title>
-    <!-- 引入谷歌字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>TechNova | 引领科技未来的智能解决方案</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="app-container">
-        <!-- 侧边栏/标题区 -->
-        <header class="sidebar glass-effect">
-            <div class="logo-area">
-                <div class="logo-icon">✨</div>
-                <h1>产品报价系统</h1>
-                <p class="subtitle">智能 <span>·</span> 极简 <span>·</span> 高效</p>
-            </div>
-            
-            <div class="info-section">
-                <h3>为什么使用本系统？</h3>
-                <ul>
-                    <li>🎯 实时动态计算利润</li>
-                    <li>💾 自动历史记录保存</li>
-                    <li>🚀 沉浸式流畅体验</li>
-                </ul>
-            </div>
-            
-            <div class="footer-note">
-                V1.0.0
-            </div>
-        </header>
-
-        <!-- 主内容区 -->
-        <main class="main-content">
-            <div class="calculator-card glass-effect">
-                <h2 class="card-title">新增报价单</h2>
-                
-                <form id="quote-form">
-                    <div class="input-group">
-                        <label for="product-name">产品名称</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="product-name" placeholder="请输入产品/服务名称" required>
-                            <span class="focus-border"></span>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="input-group half">
-                            <label for="cost-price">成本价 (￥)</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="cost-price" placeholder="0.00" min="0" step="0.01" required>
-                                <span class="focus-border"></span>
-                            </div>
-                        </div>
-
-                        <div class="input-group half">
-                            <label for="profit-margin">期望利润率 (%)</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="profit-margin" placeholder="例如: 30" min="0" required>
-                                <span class="focus-border"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                         <label for="shipping-fee">预估运费 (￥) <span class="optional">- 选填</span></label>
-                         <div class="input-wrapper">
-                             <input type="number" id="shipping-fee" placeholder="0.00" min="0" step="0.01">
-                             <span class="focus-border"></span>
-                         </div>
-                    </div>
-
-                    <button type="button" class="btn-primary" onclick="calculateQuote()">生成最终报价</button>
-                </form>
-
-                <!-- 结果展示区 -->
-                <div id="result-container" class="result-container hidden">
-                    <h3>📢 报价结果</h3>
-                    <div class="result-detail">
-                        <div class="detail-item">
-                            <span class="label">产品:</span>
-                            <span id="res-name" class="value text-highlight">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">基础成本:</span>
-                            <span id="res-cost" class="value">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">运费:</span>
-                            <span id="res-shipping" class="value">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">预计利润:</span>
-                            <span id="res-profit" class="value text-success">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="final-price-box">
-                        <span class="fp-label">最终报价金</span>
-                        <span class="fp-currency">￥</span>
-                        <span id="res-final-price" class="fp-amount">0.00</span>
-                    </div>
-                    
-                    <button class="btn-secondary" onclick="resetForm()">重新计算</button>
-                </div>
-            </div>
-            
-            <!-- 历史记录区域 -->
-            <div class="history-card glass-effect mt-5">
-                 <h2 class="card-title">历史报价记录 <span id="history-count" class="badge">0</span></h2>
-                 <div class="history-list" id="history-list">
-                     <div class="empty-state">暂无记录，快去生成第一笔报价吧！</div>
-                 </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- 背景装饰 -->
+    <!-- 动态背景装饰 -->
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
 
-    <script src="script.js"></script>
+    <!-- 全局导航栏 -->
+    <nav class="global-nav glass-effect-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">✨</span> TechNova
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">首页</a>
+                <a href="products.html" class="nav-link">产品中心</a>
+                <a href="quote.html" class="nav-link">在线报价</a>
+            </div>
+            <!-- 移动端菜单按钮 -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主视觉区域 (Hero Section) -->
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">重新定义您的<br><span class="text-gradient">商业报价与产品体验</span></h1>
+                <p class="hero-subtitle">我们提供行业领先的智能硬件与软件解决方案。兼具极致的美学设计与强大的底层运算逻辑，让您的业务飞速增长。</p>
+                <div class="hero-buttons">
+                    <a href="products.html" class="btn-primary hero-btn">探索产品矩阵</a>
+                    <a href="quote.html" class="btn-secondary hero-btn">体验智能报价</a>
+                </div>
+            </div>
+            <div class="hero-image glass-effect">
+                <div class="mockup-content">
+                    <h3>实时数据分析屏</h3>
+                    <div class="mockup-chart">
+                        <div class="bar" style="height: 40%"></div>
+                        <div class="bar" style="height: 70%"></div>
+                        <div class="bar" style="height: 50%"></div>
+                        <div class="bar" style="height: 90%"></div>
+                        <div class="bar" style="height: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心功能展示区域 -->
+        <section class="features-section">
+            <div class="section-header">
+                <h2>为什么选择 TechNova？</h2>
+                <p>我们不仅仅提供产品，更提供一套完整的商业驱动引擎。</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">🚀</div>
+                    <h3>极致性能</h3>
+                    <p>采用最新一代架构，数据处理速度提升300%，毫秒级响应您的每一个需求。</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">💎</div>
+                    <h3>工业级美学</h3>
+                    <p>由顶尖设计师倾力打造，将 Glassmorphism 设计语言贯穿始终，提供沉浸式体验。</p>
+                </div>
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">📊</div>
+                    <h3>智能算法驱动</h3>
+                    <p>内置自动化报价测算模型与历史数据持久化缓存，不再让商机流失。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 全局页脚 -->
+    <footer class="global-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo-icon">✨</div>
+                <span>TechNova Inc.</span>
+                <p>用科技创造更美好的商业未来。</p>
+            </div>
+            <div class="footer-links">
+                <h4>快速链接</h4>
+                <a href="index.html">关于我们</a>
+                <a href="products.html">产品中心</a>
+                <a href="quote.html">在线报价系统</a>
+            </div>
+            <div class="footer-contact">
+                <h4>联系我们</h4>
+                <p>Email: contact@technova.com</p>
+                <p>Phone: 400-888-8888</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TechNova Inc. All Rights Reserved. (系统开发: Antigravity AI)</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
 </body>
+
 </html>
