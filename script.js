@@ -102,10 +102,8 @@ function calculateQuote() {
         const remark = row.querySelector('.item-remark').value || '';
 
         let unitDisplayPrice = cost;
-        if (!isInternal) {
-            // Include profit in unit price for external
-            unitDisplayPrice = cost * (1 + profitRate / 100);
-        }
+        // Always include profit in the sales unit price regardless of internal/external view
+        unitDisplayPrice = cost * (1 + profitRate / 100);
         const rowTotal = unitDisplayPrice * qty;
 
         totalItemsCost += (cost * qty);
@@ -142,12 +140,18 @@ function calculateQuote() {
     const drawnRows = rows.length;
     for (let i = drawnRows; i < 9; i++) {
         const tr = document.createElement('tr');
-        if (i === 8 && !isInternal) {
-            // For the 9th row in external view, display the "合计销售金额"
+        if (i === 8) {
+            // For the 9th row, display the "合计销售金额"
+            const internalPad = isInternal ? `<td class="internal-only-col"></td><td class="internal-only-col"></td>` : ``;
+            const internalPadRight = isInternal ? `<td class="internal-only-col"></td>` : ``;
+            const colspanCount = isInternal ? `1` : `3`;
+
             tr.innerHTML = `
                 <td>9</td>
-                <td class="left-align-cell" colspan="3" style="font-weight: bold; text-align: center; color: #e53e3e;">合计销售金额:</td>
+                ${internalPad}
+                <td class="left-align-cell" colspan="${colspanCount}" style="font-weight: bold; text-align: center; color: #e53e3e;">合计销售金额:</td>
                 <td style="font-weight: bold; color: #e53e3e;" id="tpl-main-total-bottom">${totalItemsFinal.toFixed(2)}</td>
+                ${internalPadRight}
                 <td></td>
              `;
         } else {
@@ -190,11 +194,9 @@ function calculateQuote() {
     const taxFee = computedTax;
 
     // Grand Total
-    // If internal: Cost + Explicit Profit + Tax + Debug
-    // If external: (Items Final which includes profit) + Tax + Debug
-    let grandTotal = totalItemsFinal;
-    if (isInternal) grandTotal += totalProfit;
-    grandTotal += taxFee + debugFee;
+    // Both internal and external items now include profit natively.
+    // So Grand Total is Items Final + Tax + Debug.
+    let grandTotal = totalItemsFinal + taxFee + debugFee;
 
     document.getElementById('tpl-main-total-top').textContent = grandTotal.toFixed(2);
     document.getElementById('tpl-quote-id').textContent = currentQuoteId;
@@ -228,11 +230,14 @@ function calculateQuote() {
 
     saveToHistory(currentQuoteData);
 
-    // Update Layout Colspans for headers
+    // Update Layout Colspans and Text for headers
     const titleColspan = document.getElementById('tpl-title-colspan');
     const metaLeftColspan = document.getElementById('tpl-meta-colspan-left');
     const metaRightColspan = document.getElementById('tpl-meta-colspan-right');
-    if (titleColspan) titleColspan.setAttribute('colspan', isInternal ? 9 : 6);
+    if (titleColspan) {
+        titleColspan.setAttribute('colspan', isInternal ? 9 : 6);
+        titleColspan.textContent = isInternal ? '内部公司报价清单' : '公司报价清单';
+    }
     if (metaLeftColspan) metaLeftColspan.setAttribute('colspan', isInternal ? 3 : 2);
     if (metaRightColspan) metaRightColspan.setAttribute('colspan', isInternal ? 6 : 4);
 
@@ -272,7 +277,7 @@ function calculateQuote() {
         if (isInternal) {
             feesBody.innerHTML = `
                 <tr id="row-profit" class="internal-row">
-                    <td class="seq">10</td><td class="left-align-cell">利益 <span id="tpl-profit-margin">${profitRate}</span>%</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-profit-total" class="price-cell internal-only-col">${totalProfit.toFixed(2)}</td><td></td>
+                    <td class="seq">10</td><td class="left-align-cell">利益明细汇聚 (${profitRate}%)</td><td class="qty-cell">-</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-profit-total" class="price-cell internal-only-col">${totalProfit.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-tax">
                     <td class="seq">11</td><td class="left-align-cell">税费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-tax-total" class="price-cell">${taxFee.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
@@ -280,16 +285,26 @@ function calculateQuote() {
                 <tr id="row-debug">
                     <td class="seq">12</td><td class="left-align-cell">调试费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-debug-total" class="price-cell">${debugFee.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
                 </tr>
+                <tr id="row-grand-total">
+                    <td class="seq">13</td><td class="left-align-cell" style="font-weight: bold; color: #e53e3e; text-align: center;">合计:</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-grand-total-bottom" class="price-cell" style="font-weight: bold; color: #e53e3e;">${grandTotal.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
+                </tr>
             `;
+
+            // 移除顶部的总价字样 (内部)
+            const rightColspan = document.getElementById('tpl-meta-colspan-right');
+            if (rightColspan) {
+                rightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${grandTotal.toFixed(2)}</span>`;
+            }
+
         } else {
             // 销售报价 (给客户看的) 不显示税费和调试费明细
             feesBody.innerHTML = ``;
-            // 移除顶部的总价字样
+            // 移除顶部的总价字样 (外部)
             const rightColspan = document.getElementById('tpl-meta-colspan-right');
             if (rightColspan) {
                 // Keep the span for calculation but hide it visually in the header, 
                 // because we show the total at row 9 now
-                rightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${totalItemsFinal.toFixed(2)}</span>`;
+                rightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${grandTotal.toFixed(2)}</span>`;
             }
         }
     }
@@ -431,7 +446,11 @@ function exportTemplate(exportAsInternal) {
     const ws_data = [];
 
     // --- 1. 表头区域 ---
-    ws_data.push(["公司报价清单", null, null, null, null, null]);
+    if (exportAsInternal) {
+        ws_data.push(["内部公司报价清单", null, null, null, null, null, null, null, null]);
+    } else {
+        ws_data.push(["公司报价清单", null, null, null, null, null]);
+    }
 
     const quoteId = document.getElementById('tpl-quote-id').textContent;
     const profitRate = parseFloat(document.getElementById('profit-rate').value) || 0;
@@ -452,9 +471,8 @@ function exportTemplate(exportAsInternal) {
         const remark = row.querySelector('.item-remark').value || '';
 
         let unitDisplayPrice = cost;
-        if (!exportAsInternal) {
-            unitDisplayPrice = cost * (1 + profitRate / 100);
-        }
+        // Always include profit in the sales unit price regardless of internal/external view
+        unitDisplayPrice = cost * (1 + profitRate / 100);
         const rowTotal = unitDisplayPrice * qty;
 
         totalItemsCost += (cost * qty);
@@ -479,17 +497,21 @@ function exportTemplate(exportAsInternal) {
 
     const totalProfit = totalItemsCost * (profitRate / 100);
     let baseAmountForTax = totalItemsFinal;
-    if (exportAsInternal) baseAmountForTax += totalProfit;
     const taxFee = baseAmountForTax * 0.13;
 
-    let grandTotal = totalItemsFinal;
-    if (exportAsInternal) grandTotal += totalProfit;
-    grandTotal += taxFee + debugFee;
+    let grandTotal = totalItemsFinal + taxFee + debugFee;
 
-    ws_data.push([
-        "报价编号：" + quoteId, null,
-        "总价：（自动计算）" + grandTotal.toFixed(2), null, null, null
-    ]);
+    if (exportAsInternal) {
+        ws_data.push([
+            "报价编号：" + quoteId, null, null,
+            null, null, null, null, null, null
+        ]);
+    } else {
+        ws_data.push([
+            "报价编号：" + quoteId, null,
+            null, null, null, null
+        ]);
+    }
 
     const currentUser = localStorage.getItem('loginUser') || 'admin';
     const currentPreparer = document.getElementById('tpl-preparer') ? document.getElementById('tpl-preparer').textContent : currentUser;
@@ -510,9 +532,13 @@ function exportTemplate(exportAsInternal) {
 
     // Padding up to 9 items
     for (let i = itemsData.length; i < 9; i++) {
-        if (i === 8 && !exportAsInternal) {
-            // For external quotes, the 9th row is the total row
-            ws_data.push(["9", "合计销售金额:", "", "", totalItemsFinal.toFixed(2), ""]);
+        if (i === 8) {
+            // 9th row is the total row
+            if (exportAsInternal) {
+                ws_data.push(["9", "", "", "", "", "合计销售金额:", totalItemsFinal.toFixed(2), "", ""]);
+            } else {
+                ws_data.push(["9", "合计销售金额:", "", "", totalItemsFinal.toFixed(2), ""]);
+            }
         } else {
             if (exportAsInternal) ws_data.push([(i + 1).toString(), "", "", "", "", "", "", "", ""]);
             else ws_data.push([(i + 1).toString(), "", "", "", "", ""]);
@@ -521,9 +547,10 @@ function exportTemplate(exportAsInternal) {
 
     // Fees
     if (exportAsInternal) {
-        ws_data.push(["10", `利益 ${profitRate}%`, "1", "", "", "", "", totalProfit.toFixed(2), ""]);
+        ws_data.push(["10", `利益明细汇聚 (${profitRate}%)`, "-", "", "", "", "", totalProfit.toFixed(2), ""]);
         ws_data.push(["11", "税费", "1", "", "", "", taxFee.toFixed(2), "", ""]);
         ws_data.push(["12", "调试费", "1", "", "", "", debugFee.toFixed(2), "", ""]);
+        ws_data.push(["13", "合计:", "1", "", "", "", grandTotal.toFixed(2), "", ""]);
     }
 
     ws_data.push([]);
