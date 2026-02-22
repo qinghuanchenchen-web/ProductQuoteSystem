@@ -15,12 +15,16 @@ function requireAuth() {
 
 // 执行登录操作
 function login(username, password) {
-    // 固定的演示账号密码
-    const validUsername = 'admin';
-    const validPassword = 'admin';
+    // 允许的10个账号列表，账号和密码相同 (例如: user01/user01)
+    const validUsers = [
+        'user01', 'user02', 'user03', 'user04', 'user05',
+        'user06', 'user07', 'user08', 'user09', 'user10',
+        'admin' // 保留admin方便测试
+    ];
 
-    if (username === validUsername && password === validPassword) {
+    if (validUsers.includes(username) && password === username) {
         localStorage.setItem('siteAuth', 'true');
+        localStorage.setItem('loginUser', username); // 记录当前登录的用户名
         window.location.href = 'index.html';
         return true;
     } else {
@@ -31,5 +35,6 @@ function login(username, password) {
 // 注销登录
 function logout() {
     localStorage.removeItem('siteAuth');
+    localStorage.removeItem('loginUser');
     window.location.href = 'login.html';
 }

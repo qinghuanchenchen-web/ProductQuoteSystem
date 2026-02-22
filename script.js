@@ -189,6 +189,12 @@ function calculateQuote() {
     document.getElementById('tpl-main-total-top').textContent = grandTotal.toFixed(2);
     document.getElementById('tpl-quote-id').textContent = currentQuoteId;
 
+    const currentUser = localStorage.getItem('loginUser') || 'admin';
+    const tplPreparer = document.getElementById('tpl-preparer');
+    const tplViewer = document.getElementById('tpl-viewer');
+    if (tplPreparer) tplPreparer.textContent = currentUser;
+    if (tplViewer) tplViewer.textContent = currentUser;
+
     // Collect Summary for History
     const modelNames = [];
     rows.forEach(r => {
@@ -206,7 +212,8 @@ function calculateQuote() {
         totalProfit: totalProfit,
         taxFee: taxFee,
         debugFee: debugFee,
-        grandTotal: grandTotal
+        grandTotal: grandTotal,
+        preparer: currentUser
     };
 
     saveToHistory(currentQuoteData);
@@ -346,6 +353,9 @@ function renderHistory() {
             <div style="font-size:0.9em; color:#444; margin-bottom: 0.5rem;">
                 核心产品：${item.modelSummary}
             </div>
+            <div style="font-size:0.85em; color:#666; margin-bottom: 0.5rem;">
+                录入人：${item.preparer || '未知'} &nbsp;|&nbsp; 查阅人：${localStorage.getItem('loginUser') || 'admin'}
+            </div>
             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; padding: 0.5rem; background: #f8fafc; border-radius: 4px;">
                 <span>总价：<strong>¥${item.grandTotal.toFixed(2)}</strong></span>
                 <span style="color:#16a34a;">利润：¥${item.totalProfit.toFixed(2)}</span>
@@ -364,7 +374,7 @@ function exportToExcel() {
     const ws_data = [];
 
     // Header Row
-    ws_data.push(["报价单号", "生成时间", "产品摘要", "总成本(元)", "销售金额(元)", "利润额(元)", "税费(元)", "调试费(元)", "最终总价(元)"]);
+    ws_data.push(["报价单号", "生成时间", "录入人", "产品摘要", "总成本(元)", "销售金额(元)", "利润额(元)", "税费(元)", "调试费(元)", "最终总价(元)"]);
 
     quoteHistory.forEach(item => {
         const d = new Date(item.timestamp);
@@ -372,6 +382,7 @@ function exportToExcel() {
         ws_data.push([
             item.id,
             timeStr,
+            item.preparer || '未知',
             item.modelSummary,
             item.totalCost.toFixed(2),
             item.totalSales.toFixed(2),
@@ -386,6 +397,7 @@ function exportToExcel() {
     ws['!cols'] = [
         { wch: 20 }, // 报价单号
         { wch: 22 }, // 生成时间
+        { wch: 15 }, // 录入人
         { wch: 40 }, // 产品摘要
         { wch: 12 }, // 总成本
         { wch: 15 }, // 销售金额
@@ -466,6 +478,13 @@ function exportTemplate(exportAsInternal) {
     ws_data.push([
         "报价编号：" + quoteId, null,
         "总价：（自动计算）" + grandTotal.toFixed(2), null, null, null
+    ]);
+
+    const currentUser = localStorage.getItem('loginUser') || 'admin';
+    const currentPreparer = document.getElementById('tpl-preparer') ? document.getElementById('tpl-preparer').textContent : currentUser;
+    ws_data.push([
+        "录入人：" + currentPreparer, null,
+        "查阅人：" + currentUser, null, null, null
     ]);
 
     // Headers
