@@ -140,25 +140,35 @@ function calculateQuote() {
 
     // Pad remaining rows up to 9
     const drawnRows = rows.length;
-    const padDataStr = isInternal ? `
-            <td class="internal-only-col"></td>
-            <td class="internal-only-col"></td>
-            <td></td>
-            <td></td>
-            <td class="internal-only-col"></td>
-    ` : `
-            <td></td>
-            <td></td>
-    `;
     for (let i = drawnRows; i < 9; i++) {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td></td>
-            <td></td>
-            ${padDataStr}
-            <td></td>
-        `;
+        if (i === 8 && !isInternal) {
+            // For the 9th row in external view, display the "合计销售金额"
+            tr.innerHTML = `
+                <td>9</td>
+                <td class="left-align-cell" colspan="3" style="font-weight: bold; text-align: center; color: #e53e3e;">合计销售金额:</td>
+                <td style="font-weight: bold; color: #e53e3e;" id="tpl-main-total-bottom">${totalItemsFinal.toFixed(2)}</td>
+                <td></td>
+             `;
+        } else {
+            const padDataStr = isInternal ? `
+                <td class="internal-only-col"></td>
+                <td class="internal-only-col"></td>
+                <td></td>
+                <td></td>
+                <td class="internal-only-col"></td>
+             ` : `
+                <td></td>
+                <td></td>
+             `;
+            tr.innerHTML = `
+                <td>${i + 1}</td>
+                <td></td>
+                <td></td>
+                ${padDataStr}
+                <td></td>
+             `;
+        }
         tbody.appendChild(tr);
     }
 
@@ -274,11 +284,12 @@ function calculateQuote() {
         } else {
             // 销售报价 (给客户看的) 不显示税费和调试费明细
             feesBody.innerHTML = ``;
-            // 将总标题的 "总价" 改为 "未包含税费金额"
+            // 移除顶部的总价字样
             const rightColspan = document.getElementById('tpl-meta-colspan-right');
             if (rightColspan) {
-                // Ensure it retains styling but changes textual prefix
-                rightColspan.innerHTML = `未包含税费金额：（自动计算）<span id="tpl-main-total-top">${totalItemsFinal.toFixed(2)}</span>`;
+                // Keep the span for calculation but hide it visually in the header, 
+                // because we show the total at row 9 now
+                rightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${totalItemsFinal.toFixed(2)}</span>`;
             }
         }
     }
@@ -497,10 +508,15 @@ function exportTemplate(exportAsInternal) {
     // Items
     itemsData.forEach(r => ws_data.push(r));
 
-    // Padding
+    // Padding up to 9 items
     for (let i = itemsData.length; i < 9; i++) {
-        if (exportAsInternal) ws_data.push([(i + 1).toString(), "", "", "", "", "", "", "", ""]);
-        else ws_data.push([(i + 1).toString(), "", "", "", "", ""]);
+        if (i === 8 && !exportAsInternal) {
+            // For external quotes, the 9th row is the total row
+            ws_data.push(["9", "合计销售金额:", "", "", totalItemsFinal.toFixed(2), ""]);
+        } else {
+            if (exportAsInternal) ws_data.push([(i + 1).toString(), "", "", "", "", "", "", "", ""]);
+            else ws_data.push([(i + 1).toString(), "", "", "", "", ""]);
+        }
     }
 
     // Fees
@@ -508,9 +524,6 @@ function exportTemplate(exportAsInternal) {
         ws_data.push(["10", `利益 ${profitRate}%`, "1", "", "", "", "", totalProfit.toFixed(2), ""]);
         ws_data.push(["11", "税费", "1", "", "", "", taxFee.toFixed(2), "", ""]);
         ws_data.push(["12", "调试费", "1", "", "", "", debugFee.toFixed(2), "", ""]);
-    } else {
-        ws_data.push(["10", "税费", "1", "", taxFee.toFixed(2), ""]);
-        ws_data.push(["11", "调试费", "1", "", debugFee.toFixed(2), ""]);
     }
 
     ws_data.push([]);
