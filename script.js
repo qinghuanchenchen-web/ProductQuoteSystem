@@ -239,7 +239,11 @@ function calculateQuote() {
         titleColspan.textContent = isInternal ? '内部公司报价清单' : '公司报价清单';
     }
     if (metaLeftColspan) metaLeftColspan.setAttribute('colspan', isInternal ? 3 : 2);
-    if (metaRightColspan) metaRightColspan.setAttribute('colspan', isInternal ? 6 : 4);
+    if (metaRightColspan) {
+        metaRightColspan.setAttribute('colspan', isInternal ? 6 : 4);
+        // We ensure the total text is completely hidden in both views. We just keep the span for data but hide the text node.
+        metaRightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${grandTotal.toFixed(2)}</span>`;
+    }
 
     // Header construction based on mode
     const theadHeaderRow = document.getElementById('thead-header-row');
@@ -280,13 +284,13 @@ function calculateQuote() {
                     <td class="seq">10</td><td class="left-align-cell">利益明细汇聚 (${profitRate}%)</td><td class="qty-cell">-</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-profit-total" class="price-cell internal-only-col">${totalProfit.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-tax">
-                    <td class="seq">11</td><td class="left-align-cell">税费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-tax-total" class="price-cell">${taxFee.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
+                    <td class="seq">11</td><td class="left-align-cell">税费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-tax-total" class="price-cell internal-only-col">${taxFee.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-debug">
-                    <td class="seq">12</td><td class="left-align-cell">调试费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-debug-total" class="price-cell">${debugFee.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
+                    <td class="seq">12</td><td class="left-align-cell">调试费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-debug-total" class="price-cell internal-only-col">${debugFee.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-grand-total">
-                    <td class="seq">13</td><td class="left-align-cell" style="font-weight: bold; color: #e53e3e; text-align: center;">合计:</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td id="tpl-grand-total-bottom" class="price-cell" style="font-weight: bold; color: #e53e3e;">${grandTotal.toFixed(2)}</td><td class="price-cell internal-only-col"></td><td></td>
+                    <td class="seq">13</td><td class="left-align-cell" style="font-weight: bold; color: #e53e3e; text-align: center;">合计:</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-grand-total-bottom" class="price-cell internal-only-col" style="font-weight: bold; color: #e53e3e;">${grandTotal.toFixed(2)}</td><td></td>
                 </tr>
             `;
 
@@ -311,10 +315,10 @@ function calculateQuote() {
 
     if (isInternal) {
         printTpl.classList.remove('external-mode');
-        // Restore meta header for internal
+        // Do not add the top total here anymore for internal either
         const rightColspan = document.getElementById('tpl-meta-colspan-right');
         if (rightColspan) {
-            rightColspan.innerHTML = `总价：（自动计算）<span id="tpl-main-total-top">${grandTotal.toFixed(2)}</span>`;
+            rightColspan.innerHTML = `<span id="tpl-main-total-top" style="display:none;">${grandTotal.toFixed(2)}</span>`;
         }
     } else {
         printTpl.classList.add('external-mode');
@@ -548,9 +552,9 @@ function exportTemplate(exportAsInternal) {
     // Fees
     if (exportAsInternal) {
         ws_data.push(["10", `利益明细汇聚 (${profitRate}%)`, "-", "", "", "", "", totalProfit.toFixed(2), ""]);
-        ws_data.push(["11", "税费", "1", "", "", "", taxFee.toFixed(2), "", ""]);
-        ws_data.push(["12", "调试费", "1", "", "", "", debugFee.toFixed(2), "", ""]);
-        ws_data.push(["13", "合计:", "1", "", "", "", grandTotal.toFixed(2), "", ""]);
+        ws_data.push(["11", "税费", "1", "", "", "", "", taxFee.toFixed(2), ""]);
+        ws_data.push(["12", "调试费", "1", "", "", "", "", debugFee.toFixed(2), ""]);
+        ws_data.push(["13", "合计:", "1", "", "", "", "", grandTotal.toFixed(2), ""]);
     }
 
     ws_data.push([]);
