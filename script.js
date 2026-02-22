@@ -140,18 +140,12 @@ function calculateQuote() {
     const drawnRows = rows.length;
     for (let i = drawnRows; i < 9; i++) {
         const tr = document.createElement('tr');
-        if (i === 8) {
-            // For the 9th row, display the "合计销售金额"
-            const internalPad = isInternal ? `<td class="internal-only-col"></td><td class="internal-only-col"></td>` : ``;
-            const internalPadRight = isInternal ? `<td class="internal-only-col"></td>` : ``;
-            const colspanCount = isInternal ? `1` : `3`;
-
+        if (i === 8 && !isInternal) {
+            // For the 9th row in external view ONLY, display the "合计销售金额"
             tr.innerHTML = `
                 <td>9</td>
-                ${internalPad}
-                <td class="left-align-cell" colspan="${colspanCount}" style="font-weight: bold; text-align: center; color: #e53e3e;">合计销售金额:</td>
+                <td class="left-align-cell" colspan="3" style="font-weight: bold; text-align: center; color: #e53e3e;">合计销售金额:</td>
                 <td style="font-weight: bold; color: #e53e3e;" id="tpl-main-total-bottom">${totalItemsFinal.toFixed(2)}</td>
-                ${internalPadRight}
                 <td></td>
              `;
         } else {
@@ -281,16 +275,16 @@ function calculateQuote() {
         if (isInternal) {
             feesBody.innerHTML = `
                 <tr id="row-profit" class="internal-row">
-                    <td class="seq">10</td><td class="left-align-cell">利益明细汇聚 (${profitRate}%)</td><td class="qty-cell">-</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-profit-total" class="price-cell internal-only-col">${totalProfit.toFixed(2)}</td><td></td>
+                    <td class="left-align-cell" colspan="2" style="text-align: center;">利益明细汇聚 (${profitRate}%)</td><td class="qty-cell">-</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-profit-total" class="price-cell internal-only-col">${totalProfit.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-tax">
-                    <td class="seq">11</td><td class="left-align-cell">税费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-tax-total" class="price-cell internal-only-col">${taxFee.toFixed(2)}</td><td></td>
+                    <td class="left-align-cell" colspan="2" style="text-align: center;">税费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-tax-total" class="price-cell internal-only-col">${taxFee.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-debug">
-                    <td class="seq">12</td><td class="left-align-cell">调试费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-debug-total" class="price-cell internal-only-col">${debugFee.toFixed(2)}</td><td></td>
+                    <td class="left-align-cell" colspan="2" style="text-align: center;">调试费</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-debug-total" class="price-cell internal-only-col">${debugFee.toFixed(2)}</td><td></td>
                 </tr>
                 <tr id="row-grand-total">
-                    <td class="seq">13</td><td class="left-align-cell" style="font-weight: bold; color: #e53e3e; text-align: center;">合计:</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-grand-total-bottom" class="price-cell internal-only-col" style="font-weight: bold; color: #e53e3e;">${grandTotal.toFixed(2)}</td><td></td>
+                    <td class="left-align-cell" colspan="2" style="font-weight: bold; color: #e53e3e; text-align: center;">合计:</td><td class="qty-cell">1</td><td class="price-cell internal-only-col"></td><td class="price-cell internal-only-col"></td><td class="price-cell"></td><td class="price-cell"></td><td id="tpl-grand-total-bottom" class="price-cell internal-only-col" style="font-weight: bold; color: #e53e3e;">${grandTotal.toFixed(2)}</td><td></td>
                 </tr>
             `;
 
@@ -536,13 +530,9 @@ function exportTemplate(exportAsInternal) {
 
     // Padding up to 9 items
     for (let i = itemsData.length; i < 9; i++) {
-        if (i === 8) {
-            // 9th row is the total row
-            if (exportAsInternal) {
-                ws_data.push(["9", "", "", "", "", "合计销售金额:", totalItemsFinal.toFixed(2), "", ""]);
-            } else {
-                ws_data.push(["9", "合计销售金额:", "", "", totalItemsFinal.toFixed(2), ""]);
-            }
+        if (i === 8 && !exportAsInternal) {
+            // For external quotes, the 9th row is the total row
+            ws_data.push(["9", "合计销售金额:", "", "", totalItemsFinal.toFixed(2), ""]);
         } else {
             if (exportAsInternal) ws_data.push([(i + 1).toString(), "", "", "", "", "", "", "", ""]);
             else ws_data.push([(i + 1).toString(), "", "", "", "", ""]);
@@ -551,10 +541,11 @@ function exportTemplate(exportAsInternal) {
 
     // Fees
     if (exportAsInternal) {
-        ws_data.push(["10", `利益明细汇聚 (${profitRate}%)`, "-", "", "", "", "", totalProfit.toFixed(2), ""]);
-        ws_data.push(["11", "税费", "1", "", "", "", "", taxFee.toFixed(2), ""]);
-        ws_data.push(["12", "调试费", "1", "", "", "", "", debugFee.toFixed(2), ""]);
-        ws_data.push(["13", "合计:", "1", "", "", "", "", grandTotal.toFixed(2), ""]);
+        // Omitting sequence number and putting title in first column, second column is null (to be merged)
+        ws_data.push([`利益明细汇聚 (${profitRate}%)`, null, "-", "", "", "", "", totalProfit.toFixed(2), ""]);
+        ws_data.push(["税费", null, "1", "", "", "", "", taxFee.toFixed(2), ""]);
+        ws_data.push(["调试费", null, "1", "", "", "", "", debugFee.toFixed(2), ""]);
+        ws_data.push(["合计:", null, "1", "", "", "", "", grandTotal.toFixed(2), ""]);
     }
 
     ws_data.push([]);
@@ -568,7 +559,7 @@ function exportTemplate(exportAsInternal) {
 
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-    ws['!merges'] = [
+    const merges = [
         { s: { r: 0, c: 0 }, e: { r: 0, c: exportAsInternal ? 8 : 5 } },
         { s: { r: 1, c: 0 }, e: { r: 1, c: 1 } },
         { s: { r: 1, c: 2 }, e: { r: 1, c: exportAsInternal ? 8 : 5 } },
@@ -577,6 +568,21 @@ function exportTemplate(exportAsInternal) {
         { s: { r: ws_data.length - 5, c: 0 }, e: { r: ws_data.length - 5, c: exportAsInternal ? 8 : 5 } },
         { s: { r: ws_data.length - 3, c: 0 }, e: { r: ws_data.length - 3, c: exportAsInternal ? 8 : 5 } },
     ];
+
+    if (exportAsInternal) {
+        // Merge columns 0 and 1 for the 4 fee rows specifically
+        const totalRows = ws_data.length;
+        const feeStartIndex = totalRows - 11; // Depends on exact row count: last are 3 empty + contact info. So fee rows are exactly 11,10,9,8 rows from end.
+        // Let's just find the exact row indexes using the known sizes:
+        // Header(1) + Meta(1) + Prep(1) + ColHeader(1) + Items(9) = 13 rows.
+        // So Fees start at row index 13.
+        merges.push({ s: { r: 13, c: 0 }, e: { r: 13, c: 1 } });
+        merges.push({ s: { r: 14, c: 0 }, e: { r: 14, c: 1 } });
+        merges.push({ s: { r: 15, c: 0 }, e: { r: 15, c: 1 } });
+        merges.push({ s: { r: 16, c: 0 }, e: { r: 16, c: 1 } });
+    }
+
+    ws['!merges'] = merges;
 
     if (exportAsInternal) {
         ws['!cols'] = [{ wch: 8 }, { wch: 22 }, { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
