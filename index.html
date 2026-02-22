@@ -1,126 +1,293 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>产品报价系统 - 专业版</title>
+    <title>在线报价 | TechNova</title>
     <!-- 引入谷歌字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4">
+    <!-- 引入 SheetJS 用于导出 Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- 引入鉴权逻辑 -->
+    <script src="auth.js"></script>
+    <script>requireAuth();</script>
 </head>
+
 <body>
-    <div class="app-container">
-        <!-- 侧边栏/标题区 -->
-        <header class="sidebar glass-effect">
-            <div class="logo-area">
-                <div class="logo-icon">✨</div>
-                <h1>产品报价系统</h1>
-                <p class="subtitle">智能 <span>·</span> 极简 <span>·</span> 高效</p>
-            </div>
-            
-            <div class="info-section">
-                <h3>为什么使用本系统？</h3>
-                <ul>
-                    <li>🎯 实时动态计算利润</li>
-                    <li>💾 自动历史记录保存</li>
-                    <li>🚀 沉浸式流畅体验</li>
-                </ul>
-            </div>
-            
-            <div class="footer-note">
-                V1.0.0
-            </div>
-        </header>
-
-        <!-- 主内容区 -->
-        <main class="main-content">
-            <div class="calculator-card glass-effect">
-                <h2 class="card-title">新增报价单</h2>
-                
-                <form id="quote-form">
-                    <div class="input-group">
-                        <label for="product-name">产品名称</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="product-name" placeholder="请输入产品/服务名称" required>
-                            <span class="focus-border"></span>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="input-group half">
-                            <label for="cost-price">成本价 (￥)</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="cost-price" placeholder="0.00" min="0" step="0.01" required>
-                                <span class="focus-border"></span>
-                            </div>
-                        </div>
-
-                        <div class="input-group half">
-                            <label for="profit-margin">期望利润率 (%)</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="profit-margin" placeholder="例如: 30" min="0" required>
-                                <span class="focus-border"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                         <label for="shipping-fee">预估运费 (￥) <span class="optional">- 选填</span></label>
-                         <div class="input-wrapper">
-                             <input type="number" id="shipping-fee" placeholder="0.00" min="0" step="0.01">
-                             <span class="focus-border"></span>
-                         </div>
-                    </div>
-
-                    <button type="button" class="btn-primary" onclick="calculateQuote()">生成最终报价</button>
-                </form>
-
-                <!-- 结果展示区 -->
-                <div id="result-container" class="result-container hidden">
-                    <h3>📢 报价结果</h3>
-                    <div class="result-detail">
-                        <div class="detail-item">
-                            <span class="label">产品:</span>
-                            <span id="res-name" class="value text-highlight">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">基础成本:</span>
-                            <span id="res-cost" class="value">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">运费:</span>
-                            <span id="res-shipping" class="value">-</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">预计利润:</span>
-                            <span id="res-profit" class="value text-success">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="final-price-box">
-                        <span class="fp-label">最终报价金</span>
-                        <span class="fp-currency">￥</span>
-                        <span id="res-final-price" class="fp-amount">0.00</span>
-                    </div>
-                    
-                    <button class="btn-secondary" onclick="resetForm()">重新计算</button>
-                </div>
-            </div>
-            
-            <!-- 历史记录区域 -->
-            <div class="history-card glass-effect mt-5">
-                 <h2 class="card-title">历史报价记录 <span id="history-count" class="badge">0</span></h2>
-                 <div class="history-list" id="history-list">
-                     <div class="empty-state">暂无记录，快去生成第一笔报价吧！</div>
-                 </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- 背景装饰 -->
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
 
-    <script src="script.js"></script>
+    <!-- 全局导航栏 -->
+    <nav class="global-nav glass-effect-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">✨</span> TechNova
+            </a>
+            <div class="nav-links">
+                <button onclick="logout()" class="btn-outline"
+                    style="padding: 0.4rem 1rem; border-color: #e53e3e; color: #e53e3e;">注销登录</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区包裹层 -->
+    <main class="quote-page-wrapper">
+        <div class="app-container">
+            <!-- 侧边栏/标题区 -->
+            <header class="sidebar glass-effect">
+                <div class="logo-area">
+                    <div class="logo-icon">✨</div>
+                    <h1>产品报价系统</h1>
+                    <p class="subtitle">智能 <span>·</span> 极简 <span>·</span> 高效</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>为什么使用本系统？</h3>
+                    <ul>
+                        <li>🎯 实时动态计算利润</li>
+                        <li>💾 自动历史记录保存</li>
+                        <li>🚀 沉浸式流畅体验</li>
+                    </ul>
+                </div>
+
+                <div class="footer-note">
+                    V1.0.0
+                </div>
+            </header>
+
+            <!-- 主内容区 -->
+            <main class="main-content">
+                <div class="calculator-card glass-effect">
+                    <h2 class="card-title">新增报价单</h2>
+
+                    <form id="quote-form">
+                        <!-- 报价类型 -->
+                        <h3 class="section-subtitle" style="font-size: 1rem; color:#4a5568; margin-bottom: 0.5rem;">
+                            报价类型设置</h3>
+                        <div class="row" style="margin-bottom: 1.5rem;">
+                            <div class="input-group">
+                                <div class="radio-group" style="display:flex; gap: 1.5rem;">
+                                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                        <input type="radio" name="quote-type" value="external" checked>
+                                        <span>给客户报价 (隐藏底部利润，单价含利润)</span>
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                        <input type="radio" name="quote-type" value="internal">
+                                        <span>内部参考报价 (直接显示成本及利润明细)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 全局费率 -->
+                        <h3 class="section-subtitle"
+                            style="font-size: 1rem; color:#4a5568; margin-bottom: 0.5rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem;">
+                            全局费率设置</h3>
+                        <div class="row" style="margin-bottom: 1.5rem;">
+                            <div class="input-group third">
+                                <label for="profit-rate">期望利润率 (%)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="profit-rate" value="10" min="0" required>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                            <div class="input-group third">
+                                <label for="tax-fee">税费总计 (元)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="tax-fee" value="0" min="0" required>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                            <div class="input-group third">
+                                <label for="debug-fee">调试费 (元)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="debug-fee" value="0" min="0" required>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 产品列表选项 -->
+                        <div
+                            style="display:flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 1rem; margin-bottom: 0.5rem;">
+                            <h3 class="section-subtitle" style="font-size: 1rem; color:#4a5568; margin-bottom: 0;">产品明细
+                                (最多9项)</h3>
+                            <button type="button" class="btn-outline" onclick="addItem()"
+                                style="padding: 0.2rem 0.8rem; font-size: 0.8rem;">+ 添加一项</button>
+                        </div>
+
+                        <div id="items-container">
+                            <!-- 动态条目 -->
+                            <div class="item-row row"
+                                style="align-items: flex-end; margin-bottom: 1rem; background: #f8fafc; padding: 1rem; border-radius: 6px;">
+                                <div class="input-group" style="width: 30%;">
+                                    <label>型号 (必填)</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" class="item-model" placeholder="产品型号" required>
+                                        <span class="focus-border"></span>
+                                    </div>
+                                </div>
+                                <div class="input-group" style="width: 15%;">
+                                    <label>数量</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" class="item-qty" value="1" min="1" required>
+                                        <span class="focus-border"></span>
+                                    </div>
+                                </div>
+                                <div class="input-group" style="width: 25%;">
+                                    <label>单项成本(元)</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" class="item-cost" placeholder="0.00" min="0" required>
+                                        <span class="focus-border"></span>
+                                    </div>
+                                </div>
+                                <div class="input-group" style="width: 20%;">
+                                    <label>备注</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" class="item-remark" placeholder="选填">
+                                        <span class="focus-border"></span>
+                                    </div>
+                                </div>
+                                <div style="width: 5%; text-align: right; padding-bottom: 10px;">
+                                    <button type="button" class="del-btn" onclick="removeItem(this)"
+                                        style="color: #e53e3e; background:none; border:none; cursor:pointer;" title="删除"
+                                        disabled>🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-primary" onclick="calculateQuote()"
+                            style="margin-top: 1rem;">生成最终报价</button>
+                    </form>
+
+                    <!-- 结果展示区 / 销售报价单模板 -->
+                    <div id="result-container" class="result-container" style="display: none;">
+                        <!-- 打印区域外包层 -->
+                        <div id="printable-quote" class="print-template excel-template external-mode">
+                            <table class="excel-table" id="quote-table">
+                                <thead>
+                                    <tr>
+                                        <!-- 公司名暂时以TechNova演示 -->
+                                        <th colspan="6" id="tpl-title-colspan" class="table-title">公司报价清单</th>
+                                    </tr>
+                                    <tr class="meta-row-table">
+                                        <td colspan="2" id="tpl-meta-colspan-left" class="bordered-cell">报价编号：<span
+                                                id="tpl-quote-id"></span></td>
+                                        <td colspan="4" id="tpl-meta-colspan-right"
+                                            class="bordered-cell right-align-cell">总价：（自动计算）<span
+                                                id="tpl-main-total-top">0.00</span></td>
+                                    </tr>
+                                    <tr class="header-row" id="thead-header-row">
+                                        <!-- Dynamically populated by JS based on Internal/External quote type -->
+                                    </tr>
+                                </thead>
+                                <tbody id="tpl-items-body">
+                                    <!-- 动态插入 Items -->
+                                </tbody>
+                                <tbody class="fee-body">
+                                    <!-- Row 10 Profit -->
+                                    <tr id="row-profit" class="internal-row">
+                                        <td class="seq">10</td>
+                                        <td class="left-align-cell">利益 <span id="tpl-profit-margin">10</span>%</td>
+                                        <td class="qty-cell">1</td>
+                                        <td id="tpl-profit-unit" class="price-cell"></td>
+                                        <td id="tpl-profit-total" class="price-cell"></td>
+                                        <td class="price-cell internal-only-col"></td>
+                                        <td></td>
+                                    </tr>
+                                    <!-- Row 11 Tax -->
+                                    <tr id="row-tax">
+                                        <td class="seq">11</td>
+                                        <td class="left-align-cell">税费</td>
+                                        <td class="qty-cell">1</td>
+                                        <td id="tpl-tax-unit" class="price-cell"></td>
+                                        <td id="tpl-tax-total" class="price-cell"></td>
+                                        <td class="price-cell internal-only-col"></td>
+                                        <td></td>
+                                    </tr>
+                                    <!-- Row 12 Debug -->
+                                    <tr id="row-debug">
+                                        <td class="seq">12</td>
+                                        <td class="left-align-cell">调试费</td>
+                                        <td class="qty-cell">1</td>
+                                        <td id="tpl-debug-unit" class="price-cell"></td>
+                                        <td id="tpl-debug-total" class="price-cell"></td>
+                                        <td class="price-cell internal-only-col"></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="footer-terms">
+                                <p>本报价含13%税费,不含运费。</p>
+                                <p>设备质保期1年</p>
+                                <p>本报价有效期30天</p>
+                            </div>
+
+                            <div class="footer-contact">
+                                <p class="company-name">______科技有限公司</p>
+                                <div class="contact-grid">
+                                    <div class="c-label">公司电话:</div>
+                                    <div class="c-val">400-888-9999</div>
+                                    <div class="c-empty"></div>
+                                    <div class="c-empty"></div>
+                                    <div class="c-label">联系人:</div>
+                                    <div class="c-val">Admin</div>
+                                    <div class="c-label">联系方式:</div>
+                                    <div class="c-val">13800138000</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮组 -->
+                        <div class="action-buttons no-print" style="margin-top: 2rem;">
+                            <button class="btn-primary flex-fill" onclick="printQuote()">🖨️ 打印报价单</button>
+                            <button class="btn-secondary flex-fill" onclick="exportTemplate(false)"
+                                style="background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.2); color: #854d0e;">
+                                📊 导出客户报价单
+                            </button>
+                            <button class="btn-secondary flex-fill" onclick="exportTemplate(true)">
+                                📊 导出内部成本单
+                            </button>
+                            <button class="btn-outline flex-fill" onclick="resetForm()">↺ 重新计算</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录区域 -->
+                <div class="history-card glass-effect mt-5">
+                    <div class="history-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="card-title" style="margin-bottom: 0;">历史报价记录 <span id="history-count"
+                                class="badge">0</span></h2>
+                        <button class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+                            onclick="exportToExcel()">导出Excel</button>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <div class="empty-state">暂无记录，快去生成第一笔报价吧！</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </main>
+
+    <!-- 全局页脚 -->
+    <footer class="global-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo-icon">✨</div>
+                <span>TechNova Inc.</span>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TechNova Inc. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script src="script.js?v=4"></script>
 </body>
+
 </html>

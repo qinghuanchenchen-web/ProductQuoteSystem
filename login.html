@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录系统 | TechNova</title>
+    <!-- 引入谷歌字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+</head>
+
+<body class="login-body">
+    <!-- 动态背景装饰 -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <div class="login-container">
+        <div class="login-card glass-effect">
+            <div class="login-header">
+                <div class="logo-icon" style="font-size: 2.5rem; margin-bottom: 1rem;">✨</div>
+                <h2>欢迎登录</h2>
+                <p>TechNova 核心报价测算系统</p>
+            </div>
+
+            <form id="login-form" autocomplete="off">
+                <div class="input-group" style="margin-bottom: 1.5rem;">
+                    <label for="username">账号</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" placeholder="请输入管理员账号" required>
+                        <span class="focus-border"></span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-bottom: 2rem;">
+                    <label for="password">密码</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" placeholder="请输入密码" required>
+                        <span class="focus-border"></span>
+                    </div>
+                </div>
+
+                <div id="login-error" class="hidden"
+                    style="color: #e53e3e; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;">
+                    账号或密码不正确！
+                </div>
+
+                <button type="submit" class="btn-primary"
+                    style="width: 100%; padding: 0.8rem; font-size: 1rem;">安全登录</button>
+            </form>
+
+            <div class="login-footer" style="text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #718096;">
+                内部工具请妥善保管密码 <br> 默认测试密码: admin / admin
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检测是否已经处于登录状态，避免重复登录
+        if (checkAuth()) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errDiv = document.getElementById('login-error');
+
+            if (login(user, pass)) {
+                // login.html里面login成功内部就会跳路由了
+            } else {
+                errDiv.classList.remove('hidden');
+                // 震动效果动画(可选)
+                const card = document.querySelector('.login-card');
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 500);
+            }
+        });
+    </script>
+</body>
+
+</html>
